@@ -11,7 +11,7 @@ The ability to read sheet music is becoming less common, especially among self-t
 ---
 
 ## Target User  
-A beginner musician—such as a high school or college student—who wants to learn how to read sheet music but feels intimidated by traditional methods. They’re motivated to improve but need something interactive, flexible, and easy to stick with.
+A beginner musician who wants to learn how to read sheet music but feels intimidated by traditional methods. They’re motivated to improve but need something interactive, flexible, and easy to stick with.
 
 ---
 
