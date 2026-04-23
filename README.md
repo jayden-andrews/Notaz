@@ -1,12 +1,12 @@
-# NotationStation
+# Notaz
 
 ## Elevator Pitch  
-Can you read sheet music? If not, you’re not alone. **Notation Station** is a full-stack learning app designed for beginners, using interactive exercises to help users quickly build confidence and fluency in reading music.
+Can you read sheet music? If not, you’re not alone. **Notaz** is a full-stack learning app designed for beginners, using interactive exercises to help users quickly build confidence and fluency in reading music.
 
 ---
 
 ## Problem Statement  
-The ability to read sheet music is becoming less common, especially among self-taught musicians. Existing tools can feel overwhelming or outdated, so **Notation Station** makes learning approachable through simple, structured, and engaging practice.
+The ability to read sheet music is becoming less common, especially among self-taught musicians. Existing tools can feel overwhelming or outdated, so **Notaz** makes learning approachable through simple, structured, and engaging practice.
 
 ---
 
