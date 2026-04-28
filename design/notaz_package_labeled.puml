@@ -1,0 +1,99 @@
+@startuml notaz_package_labeled
+
+title Notaz — Package Diagram (Spring Boot Layers)
+
+skinparam packageBackgroundColor #E1F5EE
+skinparam packageBorderColor #0F6E56
+skinparam packageFontColor #04342C
+skinparam packageFontStyle bold
+skinparam classBackgroundColor #EEEDFE
+skinparam classBorderColor #534AB7
+skinparam classFontColor #3C3489
+skinparam classArrowColor #0F6E56
+skinparam arrowThickness 1.2
+skinparam shadowing false
+
+package "controller" <<Rectangle>> {
+  class UserController {
+    + register() : ResponseEntity
+    + login() : ResponseEntity
+  }
+  class ExerciseController {
+    + getExercise() : ResponseEntity
+    + submitAttempt() : ResponseEntity
+  }
+  class ProgressController {
+    + getProgress() : ResponseEntity
+  }
+}
+
+package "service" <<Rectangle>> {
+  class UserService {
+    + register(dto) : User
+    + login(dto) : String
+  }
+  class ExerciseService {
+    + getExercise(clef) : ExerciseDTO
+    + checkAnswer(attempt) : AttemptResult
+  }
+  class ProgressService {
+    + getProgress(userId) : ProgressDTO
+  }
+}
+
+package "repository" <<Rectangle>> {
+  interface UserRepository {
+    + findByEmail(email) : User
+  }
+  interface ExerciseRepository {
+    + findByClef(clef) : List<Exercise>
+  }
+  interface NoteRepository {
+    + findByStaffPosition(pos) : Note
+  }
+}
+
+package "entity" <<Rectangle>> {
+  class User {
+    - id : Long
+    - username : String
+    - email : String
+    - passwordHash : String
+  }
+  class Exercise {
+    - id : Long
+    - clef : Clef
+    - targetNote : Note
+    - choices : List<Note>
+  }
+  class Note {
+    - name : String
+    - staffPosition : int
+  }
+  enum Clef {
+    TREBLE
+    BASS
+  }
+}
+
+' Controller -> Service
+UserController     ..>  UserService     : delegates to
+ExerciseController ..>  ExerciseService : delegates to
+ProgressController ..>  ProgressService : delegates to
+
+' Service -> Repository
+UserService     ..>  UserRepository     : queries via
+ExerciseService ..>  ExerciseRepository : fetches exercises via
+ExerciseService ..>  NoteRepository     : fetches note choices via
+ProgressService ..>  UserRepository     : reads session history via
+
+' Repository -> Entity
+UserRepository     ..>  User     : maps rows to
+ExerciseRepository ..>  Exercise : maps rows to
+NoteRepository     ..>  Note     : maps rows to
+
+' Entity relationships
+Exercise ..>  Note : has target + choices
+Exercise ..>  Clef : typed by
+
+@enduml
