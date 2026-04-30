@@ -1,8 +1,7 @@
 package com.example.backend.entities;
 
 import jakarta.persistence.*;
-
-import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Exercise {
@@ -17,11 +16,11 @@ public class Exercise {
     private Note targetNote;
 
     @OneToMany
-    private ArrayList<Note> choices;
+    private List<Note> choices;
 
     public Exercise() {}
 
-    public Exercise(Long id, Clef clef, Note targetNote, ArrayList<Note> choices) {
+    public Exercise(Long id, Clef clef, Note targetNote, List<Note> choices) {
         this.id = id;
         this.clef = clef;
         this.targetNote = targetNote;
@@ -52,11 +51,11 @@ public class Exercise {
         this.targetNote = targetNote;
     }
 
-    public ArrayList<Note> getChoices() {
+    public List<Note> getChoices() {
         return choices;
     }
 
-    public void setChoices(ArrayList<Note> choices) {
+    public void setChoices(List<Note> choices) {
         this.choices = choices;
     }
 }
