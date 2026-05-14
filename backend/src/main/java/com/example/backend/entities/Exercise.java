@@ -15,7 +15,7 @@ public class Exercise {
     @ManyToOne
     private Note targetNote;
 
-    @OneToMany
+    @ManyToMany
     private List<Note> choices;
 
     public Exercise() {}
