@@ -8,16 +8,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String username;
+    @Column(unique = true, nullable = false)
     private String email;
     private String passwordHash;
 
     public User() {}
 
-    public User(Long id, String username, String email, String passwordHash) {
+    public User(Long id, String email, String passwordHash) {
         this.id = id;
-        this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
     }
@@ -28,14 +26,6 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getEmail() {

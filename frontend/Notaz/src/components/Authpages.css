@@ -1,0 +1,214 @@
+/* AuthPages.css — shared styles for LoginPage and RegisterPage */
+
+/* ── Page shell ────────────────────────────────────────── */
+.auth {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2rem;
+  background: var(--color-bg);
+}
+
+/* ── Staff background (reused from HomePage) ───────────── */
+.staff-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.staff-line {
+  position: absolute;
+  left: -5%;
+  width: 110%;
+  height: 1px;
+  background: var(--color-border);
+  animation: slideIn 1.2s ease both;
+}
+
+.staff-line:nth-child(1) { animation-delay: 0.0s; }
+.staff-line:nth-child(2) { animation-delay: 0.1s; }
+.staff-line:nth-child(3) { animation-delay: 0.2s; }
+.staff-line:nth-child(4) { animation-delay: 0.3s; }
+.staff-line:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: scaleX(0.6); }
+  to   { opacity: 1; transform: scaleX(1); }
+}
+
+/* ── Card ───────────────────────────────────────────────── */
+.auth__card {
+  position: relative;
+  z-index: 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: fadeUp 0.7s ease 0.2s both;
+  box-shadow: 0 4px 32px rgba(14, 14, 14, 0.06);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Brand ──────────────────────────────────────────────── */
+.auth__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.auth__brand-icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--color-ink);
+}
+
+.auth__brand-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+}
+
+/* ── Headings ───────────────────────────────────────────── */
+.auth__title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+
+.auth__sub {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: var(--color-ink-muted);
+  margin-top: -0.5rem;
+}
+
+/* ── Form ───────────────────────────────────────────────── */
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.auth__label {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+.auth__input {
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.85rem;
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+
+.auth__input::placeholder {
+  color: var(--color-ink-muted);
+  opacity: 0.6;
+}
+
+.auth__input:focus {
+  border-color: var(--color-ink);
+}
+
+/* ── Error ──────────────────────────────────────────────── */
+.auth__error {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--color-incorrect);
+  background: rgba(198, 40, 40, 0.06);
+  border: 1px solid rgba(198, 40, 40, 0.2);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--color-ink);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+}
+
+.btn--primary {
+  background: var(--color-ink);
+  color: var(--color-bg);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-ink-soft);
+  transform: translateY(-1px);
+}
+
+.btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--full {
+  width: 100%;
+  text-align: center;
+}
+
+/* ── Switch link ────────────────────────────────────────── */
+.auth__switch {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  color: var(--color-ink-muted);
+  text-align: center;
+}
+
+.auth__link {
+  color: var(--color-ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth__link:hover {
+  color: var(--color-ink-soft);
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .auth__card { padding: 1.75rem 1.25rem; }
+}

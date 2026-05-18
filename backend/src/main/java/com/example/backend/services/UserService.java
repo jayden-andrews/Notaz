@@ -13,9 +13,8 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User register(String username, String email, String passwordHash) {
+    public User register( String email, String passwordHash) {
         User user = new User();
-        user.setUsername(username);
         user.setEmail(email);
         user.setPasswordHash(passwordHash);
         return userRepository.save(user);
