@@ -2,46 +2,33 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './AuthPages.css';
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (password !== confirm) {
-      setError('Passwords do not match.');
-      return;
-    }
-
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8080/api/users/register', {
+      const res = await fetch('http://localhost:8080/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, passwordHash: password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (!res.ok) {
-        const msg = await res.text();
-        setError(msg || 'Registration failed. That email may already be in use.');
+        setError('Invalid email or password.');
         return;
       }
 
       const data = await res.json();
       localStorage.setItem('user', JSON.stringify(data));
-      navigate('/clef-select');
+      navigate('/dashboard');
     } catch (err) {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -65,8 +52,8 @@ export default function RegisterPage() {
           <span className="auth__brand-name">Notaz</span>
         </div>
 
-        <h1 className="auth__title">Create account</h1>
-        <p className="auth__sub">Start learning to read music today.</p>
+        <h1 className="auth__title">Welcome back</h1>
+        <p className="auth__sub">Sign in to continue your practice.</p>
 
         <form className="auth__form" onSubmit={handleSubmit}>
           <div className="auth__field">
@@ -93,34 +80,20 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="new-password"
-            />
-          </div>
-
-          <div className="auth__field">
-            <label className="auth__label" htmlFor="confirm">Confirm Password</label>
-            <input
-              id="confirm"
-              className="auth__input"
-              type="password"
-              placeholder="••••••••"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              required
-              autoComplete="new-password"
+              autoComplete="current-password"
             />
           </div>
 
           {error && <p className="auth__error">{error}</p>}
 
           <button className="btn btn--primary btn--full" type="submit" disabled={loading}>
-            {loading ? 'Creating account…' : 'Create Account'}
+            {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
         <p className="auth__switch">
-          Already have an account?{' '}
-          <Link className="auth__link" to="/login">Sign in</Link>
+          Don't have an account?{' '}
+          <Link className="auth__link" to="/register">Sign up</Link>
         </p>
       </div>
     </div>

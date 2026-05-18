@@ -23,4 +23,12 @@ public class UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    public User login(String email, String password) {
+    User user = userRepository.findByEmail(email);
+    if (user == null || !user.getPasswordHash().equals(password)) {
+        return null;
+    }
+    return user;
+}
 }
