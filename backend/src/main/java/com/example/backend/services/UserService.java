@@ -13,7 +13,13 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User register( String email, String passwordHash) {
+    public User register(String email, String passwordHash) {
+        if (email == null || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new RuntimeException("INVALID_EMAIL");
+        }
+        if (userRepository.findByEmail(email) != null) {
+            throw new RuntimeException("EMAIL_EXISTS");
+        }
         User user = new User();
         user.setEmail(email);
         user.setPasswordHash(passwordHash);

@@ -12,7 +12,11 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
 
     try {
       const res = await fetch('http://localhost:8080/api/users/login', {

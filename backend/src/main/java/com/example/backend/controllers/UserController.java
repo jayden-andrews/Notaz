@@ -29,6 +29,12 @@ public class UserController {
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(409).body("An account with that email already exists.");
         } catch (RuntimeException e) {
+            if ("EMAIL_EXISTS".equals(e.getMessage())) {
+                return ResponseEntity.status(409).body("An account with that email already exists.");
+            }
+            if ("INVALID_EMAIL".equals(e.getMessage())) {
+                return ResponseEntity.status(400).body("Please enter a valid email address.");
+            }
             return ResponseEntity.status(500).body("Something went wrong.");
         }
     }
