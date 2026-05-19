@@ -1,6 +1,8 @@
 package com.example.backend.entities;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "users")
@@ -12,12 +14,16 @@ public class User {
     private String email;
     private String passwordHash;
 
+    private LocalDateTime createdAt;
+
+
     public User() {}
 
     public User(Long id, String email, String passwordHash) {
         this.id = id;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -42,5 +48,13 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public LocalDateTime getCreatedAt() { 
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) { 
+        this.createdAt = createdAt; 
     }
 }

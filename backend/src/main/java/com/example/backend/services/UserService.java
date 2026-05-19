@@ -2,6 +2,9 @@ package com.example.backend.services;
 
 import com.example.backend.entities.User;
 import com.example.backend.repositories.UserRepository;
+
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,7 +26,15 @@ public class UserService {
         User user = new User();
         user.setEmail(email);
         user.setPasswordHash(passwordHash);
+        user.setCreatedAt(LocalDateTime.now());
         return userRepository.save(user);
+    }
+
+    public void deleteAccount(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("USER_NOT_FOUND");
+        }
+        userRepository.deleteById(id);
     }
 
     public User findByEmail(String email) {
@@ -36,5 +47,5 @@ public class UserService {
         return null;
     }
     return user;
-}
+    }
 }

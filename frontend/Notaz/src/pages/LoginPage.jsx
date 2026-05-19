@@ -9,6 +9,11 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -26,7 +31,11 @@ export default function LoginPage() {
       });
 
       if (!res.ok) {
-        setError('Invalid email or password.');
+        if (res.status === 401) {
+          setError('No account found with that email and password combination.');
+        } else {
+          setError('Something went wrong. Please try again.');
+        }
         return;
       }
 
