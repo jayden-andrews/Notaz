@@ -16,6 +16,11 @@ public class Exercise {
     private Note targetNote;
 
     @ManyToMany
+    @JoinTable(
+    name = "exercise_choices",
+    joinColumns = @JoinColumn(name = "exercise_id"),
+    inverseJoinColumns = @JoinColumn(name = "note_id")
+    )
     private List<Note> choices;
 
     public Exercise() {}

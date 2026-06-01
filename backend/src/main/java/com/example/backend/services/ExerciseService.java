@@ -6,6 +6,7 @@ import com.example.backend.entities.Note;
 import com.example.backend.repositories.ExerciseRepository;
 import com.example.backend.repositories.NoteRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,8 +21,11 @@ public class ExerciseService {
         this.noteRepository = noteRepository;
     }
 
+    @Transactional
     public List<Exercise> getExercisesByClef(Clef clef) {
-        return exerciseRepository.findByClef(clef);
+        List<Exercise> exercises = exerciseRepository.findByClef(clef);
+        exercises.forEach(e -> e.getChoices().size()); // force initialize
+        return exercises;
     }
 
     public boolean checkAnswer(Long exerciseId, String userAnswer) {

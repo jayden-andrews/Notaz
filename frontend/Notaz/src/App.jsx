@@ -5,6 +5,7 @@ import RegisterPage from './pages/Registerpage';
 import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
 import LearnPage from './pages/LearnPage';
+import PracticePage from './pages/PracticePage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/learn" element={<LearnPage />} />
+        <Route path="/practice" element={<PracticePage />} />
       </Routes>
     </BrowserRouter>
   );
