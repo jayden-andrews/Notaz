@@ -5,139 +5,217 @@ import './PracticePage.css';
 
 const SESSION_LENGTH = 10;
 
-// ── Staff positions for rendering ───────────────────────────────
+// ── Staff Y positions (top of SVG = lowest y value) ────────────
 const TREBLE_Y = {
-  'C6': 8,
-  'B5': 16,
-  'A5': 24,
-  'G5': 32,
-  'F5': 40,
-  'E5': 48,
-  'D5': 56,
-  'C5': 64,
-  'B4': 72,
-  'A4': 80,
-  'G4': 88,
-  'F4': 96,
-  'E4': 104,
-  'D6': 0,
-  'E6': -8,
-  'F6': -16,
+  'E6': -24, 'D6': -16, 'C6': -8,
+  'B5': 0,   'A5': 8,   'G5': 16,
+  'F5': 24,  'E5': 32,  'D5': 40,
+  'C5': 48,  'B4': 56,  'A4': 64,
+  'G4': 72,  'F4': 80,  'E4': 88,
 };
 
 const BASS_Y = {
-  'A3': 40, 'G3': 48, 'F3': 56, 'E3': 64,
-  'D3': 72, 'C3': 80, 'B2': 88, 'A2': 96, 'G2': 104,
+  'A4b': -24, 'G4b': -16, 'F4b': -8,
+  'E4b': 0,   'D4b': 8,   'C4':  16,
+  'B3':  24,  'A3':  32,  'G3':  40,
+  'F3':  48,  'E3':  56,  'D3':  64,
+  'C3':  72,  'B2':  80,  'A2':  88,
 };
 
-// All clickable positions on the staff for place-the-note mode
-const TREBLE_POSITIONS = [
-  { name: 'F6', y: -16 }, { name: 'E6', y: -8 }, { name: 'D6', y: 0 },
-  { name: 'C6', y: 8 },   { name: 'B5', y: 16 },  { name: 'A5', y: 24 },
-  { name: 'G5', y: 32 },  { name: 'F5', y: 40 },  { name: 'E5', y: 48 },
-  { name: 'D5', y: 56 },  { name: 'C5', y: 64 },  { name: 'B4', y: 72 },
-  { name: 'A4', y: 80 },  { name: 'G4', y: 88 },  { name: 'F4', y: 96 },
-  { name: 'E4', y: 104 },
-];
+// Staff lines sit at these y values
+const LINE_Y = [24, 40, 56, 72, 88];
 
-const BASS_POSITIONS = [
-  { name: 'A3', y: 40 }, { name: 'G3', y: 48 }, { name: 'F3', y: 56 },
-  { name: 'E3', y: 64 }, { name: 'D3', y: 72 }, { name: 'C3', y: 80 },
-  { name: 'B2', y: 88 }, { name: 'A2', y: 96 }, { name: 'G2', y: 104 },
-];
+// For treble clef, notes on/above middle line (B4 = y64) get stem down
+// For bass clef, notes on/above middle line (D3 = y72) get stem down
+const getStemDown = (noteY) => noteY <= 56;
+
+const TREBLE_POSITIONS = Object.entries(TREBLE_Y)
+  .sort((a, b) => a[1] - b[1])
+  .map(([name, y]) => ({ name, y }));
+
+const BASS_POSITIONS = Object.entries(BASS_Y)
+  .sort((a, b) => a[1] - b[1])
+  .map(([name, y]) => ({ name, y }));
+
+// ── Octave explanation map ──────────────────────────────────────
+const OCTAVE_HINT = {
+  2: 'Octave 2 — very low register',
+  3: 'Octave 3 — low register',
+  4: 'Octave 4 — middle register',
+  5: 'Octave 5 — upper register',
+  6: 'Octave 6 — high register',
+};
+
+function getOctave(noteName) {
+  const match = noteName.match(/\d/);
+  return match ? parseInt(match[0]) : null;
+}
+
+// ── Leger line helper ───────────────────────────────────────────
+// Staff lines at 40, 56, 72, 88, 104
+// Above staff: first leger line at 24, then 8, -8, -24...
+// Below staff: first leger line at 120, then 136...
+function getLegerLines(noteY) {
+  const lines = [];
+  if (noteY <= 8) {
+    for (let y = 8; y >= noteY - 4; y -= 16) lines.push(y);
+  }
+  if (noteY >= 104) {
+    for (let y = 104; y <= noteY + 4; y += 16) lines.push(y);
+  }
+  return lines;
+}
+
+// ── Note component ──────────────────────────────────────────────
+function NoteHead({ cx, cy, fill, stroke, strokeWidth, opacity, stemDown, showStem, stemColor }) {
+  const stemX1 = stemDown ? cx - 9 : cx + 9;
+  const stemX2 = stemX1;
+  const stemY2 = stemDown ? cy + 40 : cy - 40;
+
+  return (
+    <g>
+      <ellipse
+        cx={cx} cy={cy}
+        rx="10" ry="7.5"
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={strokeWidth ?? 0}
+        transform={`rotate(-15, ${cx}, ${cy})`}
+        opacity={opacity ?? 1}
+      />
+      {showStem && (
+        <line
+          x1={stemX1} y1={cy}
+          x2={stemX2} y2={stemY2}
+          stroke={stemColor ?? fill}
+          strokeWidth="1.5"
+        />
+      )}
+    </g>
+  );
+}
 
 // ── Staff SVG for multiple choice ──────────────────────────────
 function StaffWithNote({ noteName, clef }) {
-  const positions = clef === 'TREBLE' ? TREBLE_Y : BASS_Y;
-  const noteY = positions[noteName] ?? 72;
-  const lineY = [40, 56, 72, 88, 104];
-  const needsLedger = noteName === 'E4' || noteName === 'G2';
+  const yMap = clef === 'TREBLE' ? TREBLE_Y : BASS_Y;
+  const noteY = yMap[noteName] ?? 72;
+  const stemDown = getStemDown(noteY);
+  const legerLines = getLegerLines(noteY);
 
   return (
-    <svg className="practice-staff-svg" viewBox="0 -30 240 180" xmlns="http://www.w3.org/2000/svg">
-      {lineY.map((y, i) => (
+    <svg className="practice-staff-svg" viewBox="0 -40 240 190" xmlns="http://www.w3.org/2000/svg">
+      {LINE_Y.map((y, i) => (
         <line key={i} x1="20" y1={y} x2="220" y2={y}
           stroke="var(--color-ink)" strokeWidth="1.2" />
       ))}
       <text x="22" y={clef === 'TREBLE' ? 108 : 92}
-        fontSize={clef === 'TREBLE' ? "72" : "52"}
+        fontSize={clef === 'TREBLE' ? '72' : '52'}
         fill="var(--color-ink)" fontFamily="serif" opacity="0.2">
         {clef === 'TREBLE' ? '𝄞' : '𝄢'}
       </text>
-      {needsLedger && (
-        <line x1="108" y1="104" x2="140" y2="104"
+      {legerLines.map((ly, i) => (
+        <line key={`leger-${i}`} x1="108" y1={ly} x2="140" y2={ly}
           stroke="var(--color-ink)" strokeWidth="1.2" />
-      )}
-      <ellipse cx="124" cy={noteY} rx="10" ry="7.5"
+      ))}
+      <NoteHead
+        cx={124} cy={noteY}
         fill="var(--color-ink)"
-        transform={`rotate(-15, 124, ${noteY})`} />
-      <line x1="133" y1={noteY} x2="133" y2={noteY - 40}
-        stroke="var(--color-ink)" strokeWidth="1.5" />
+        showStem={true}
+        stemDown={stemDown}
+        stemColor="var(--color-ink)"
+      />
     </svg>
   );
 }
 
-// ── Interactive staff for place-the-note mode ──────────────────
+// ── Interactive staff for place-the-note ───────────────────────
 function InteractiveStaff({ clef, onPlace, placedNote, correctNote, submitted }) {
   const positions = clef === 'TREBLE' ? TREBLE_POSITIONS : BASS_POSITIONS;
-  const lineY = [40, 56, 72, 88, 104];
 
-  const getNoteColor = (name) => {
+  const getFill = (name) => {
     if (!submitted) return placedNote === name ? 'var(--color-ink)' : 'transparent';
     if (name === correctNote) return 'var(--color-correct)';
     if (name === placedNote && placedNote !== correctNote) return 'var(--color-incorrect)';
     return 'transparent';
   };
 
-  const getStrokeColor = (name) => {
+  const getStroke = (name) => {
     if (!submitted && placedNote === name) return 'var(--color-ink)';
     if (submitted && name === correctNote) return 'var(--color-correct)';
     if (submitted && name === placedNote && placedNote !== correctNote) return 'var(--color-incorrect)';
     return 'rgba(14,14,14,0.15)';
   };
 
+  const getStemColor = (name) => {
+    if (!submitted) return 'var(--color-ink)';
+    if (name === correctNote) return 'var(--color-correct)';
+    if (name === placedNote) return 'var(--color-incorrect)';
+    return 'var(--color-ink)';
+  };
+
+  const placedPos = positions.find(p => p.name === placedNote);
+  const correctPos = positions.find(p => p.name === correctNote);
+
   return (
     <svg className="practice-staff-svg practice-staff-svg--interactive"
-      viewBox="0 -30 240 180" xmlns="http://www.w3.org/2000/svg">
-      {lineY.map((y, i) => (
+      viewBox="0 -40 240 190" xmlns="http://www.w3.org/2000/svg">
+
+      {LINE_Y.map((y, i) => (
         <line key={i} x1="20" y1={y} x2="220" y2={y}
           stroke="var(--color-ink)" strokeWidth="1.2" />
       ))}
       <text x="22" y={clef === 'TREBLE' ? 108 : 92}
-        fontSize={clef === 'TREBLE' ? "72" : "52"}
+        fontSize={clef === 'TREBLE' ? '72' : '52'}
         fill="var(--color-ink)" fontFamily="serif" opacity="0.2">
         {clef === 'TREBLE' ? '𝄞' : '𝄢'}
       </text>
-      {positions.map((pos) => (
-        <g key={pos.name} onClick={() => !submitted && onPlace(pos.name)}
-          style={{ cursor: submitted ? 'default' : 'pointer' }}>
-          <rect x="80" y={pos.y - 8} width="80" height="16" fill="transparent" />
-          <ellipse cx="124" cy={pos.y} rx="10" ry="7.5"
-            fill={getNoteColor(pos.name)}
-            stroke={getStrokeColor(pos.name)}
-            strokeWidth="1.2"
-            transform={`rotate(-15, 124, ${pos.y})`}
-            opacity={placedNote === pos.name || (submitted && pos.name === correctNote) ? 1 : 0.3}
-          />
-          {placedNote === pos.name && (
-            <line x1="133" y1={pos.y} x2="133" y2={pos.y - 40}
-              stroke={submitted
-                ? (placedNote === correctNote ? 'var(--color-correct)' : 'var(--color-incorrect)')
-                : 'var(--color-ink)'}
-              strokeWidth="1.5" />
-          )}
-        </g>
+
+      {/* Leger lines for placed note */}
+      {placedPos && getLegerLines(placedPos.y).map((ly, i) => (
+        <line key={`lp-${i}`} x1="108" y1={ly} x2="140" y2={ly}
+          stroke={submitted
+            ? (placedNote === correctNote ? 'var(--color-correct)' : 'var(--color-incorrect)')
+            : 'var(--color-ink)'}
+          strokeWidth="1.2" />
       ))}
-      {(placedNote === 'E4' || placedNote === 'G2' ||
-        (submitted && (correctNote === 'E4' || correctNote === 'G2'))) && (
-        <line x1="108" y1="104" x2="140" y2="104"
-          stroke="var(--color-ink)" strokeWidth="1.2" />
-      )}
+
+      {/* Leger lines for correct note after wrong answer */}
+      {submitted && correctNote !== placedNote && correctPos &&
+        getLegerLines(correctPos.y).map((ly, i) => (
+          <line key={`lc-${i}`} x1="108" y1={ly} x2="140" y2={ly}
+            stroke="var(--color-correct)" strokeWidth="1.2" />
+        ))
+      }
+
+      {positions.map((pos) => {
+        const isPlaced = placedNote === pos.name;
+        const isCorrectPos = submitted && pos.name === correctNote;
+        const showNote = isPlaced || isCorrectPos;
+        const stemDown = getStemDown(pos.y);
+
+        return (
+          <g key={pos.name}
+            onClick={() => !submitted && onPlace(pos.name)}
+            style={{ cursor: submitted ? 'default' : 'pointer' }}>
+            <rect x="80" y={pos.y - 8} width="80" height="16" fill="transparent" />
+            <NoteHead
+              cx={124} cy={pos.y}
+              fill={getFill(pos.name)}
+              stroke={getStroke(pos.name)}
+              strokeWidth={1.2}
+              opacity={showNote ? 1 : 0.2}
+              showStem={isPlaced || isCorrectPos}
+              stemDown={stemDown}
+              stemColor={getStemColor(pos.name)}
+            />
+          </g>
+        );
+      })}
     </svg>
   );
 }
 
-// ── Results screen ───────────────────────────────────────────────
+// ── Results screen ──────────────────────────────────────────────
 function ResultsScreen({ results, onRestart, onChangeClef }) {
   const correct = results.filter(r => r.correct).length;
   const accuracy = Math.round((correct / results.length) * 100);
@@ -167,7 +245,7 @@ function ResultsScreen({ results, onRestart, onChangeClef }) {
   );
 }
 
-// ── Main component ───────────────────────────────────────────────
+// ── Main component ──────────────────────────────────────────────
 export default function PracticePage() {
   const navigate = useNavigate();
   const bassUnlocked = localStorage.getItem('notaz_bass_unlocked') === 'true';
@@ -185,20 +263,14 @@ export default function PracticePage() {
   const [error, setError] = useState('');
   const [sessionDone, setSessionDone] = useState(false);
 
-  // Derive mode directly from the queue — never store as separate state
   const currentExercise = sessionQueue[currentIdx];
   const mode = currentExercise?.mode ?? 'choice';
 
-  // Shuffle choices once per exercise index
+  // Fix: depend on exercise id so shuffle is stable per exercise
   const shuffledChoices = useMemo(() => {
-    if (!currentExercise) return [];
+    if (!currentExercise?.choices?.length) return [];
     return [...currentExercise.choices].sort(() => Math.random() - 0.5);
-  }, [currentIdx]);
-
-  console.log('currentIdx:', currentIdx);
-    console.log('sessionQueue length:', sessionQueue.length);
-    console.log('currentExercise:', currentExercise);
-    console.log('mode:', mode);
+  }, [currentExercise?.id]);
 
   const buildSession = (data) => {
     const shuffled = [...data].sort(() => Math.random() - 0.5);
@@ -221,7 +293,7 @@ export default function PracticePage() {
     setError('');
     try {
       const res = await fetch(`http://localhost:8080/api/exercises?clef=${selectedClef}`);
-      if (!res.ok) throw new Error('Failed to fetch exercises');
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setExercises(data);
       buildSession(data);
@@ -250,25 +322,15 @@ export default function PracticePage() {
     const correct = answer === currentExercise.targetNote.name;
     setIsCorrect(correct);
     setSubmitted(true);
-
-    setResults((prev) => [...prev, {
-      noteName: currentExercise.targetNote.name,
-      mode,
-      correct,
-    }]);
+    setResults(prev => [...prev, { noteName: currentExercise.targetNote.name, mode, correct }]);
 
     try {
       await fetch('http://localhost:8080/api/exercises/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          exerciseId: currentExercise.id,
-          userAnswer: answer,
-        }),
+        body: JSON.stringify({ exerciseId: currentExercise.id, userAnswer: answer }),
       });
-    } catch (err) {
-      // Non-blocking
-    }
+    } catch (_) {}
   };
 
   const handleNext = () => {
@@ -284,14 +346,13 @@ export default function PracticePage() {
   };
 
   const handleRestart = () => buildSession(exercises);
-
   const handleChangeClef = () => {
     setClef(null);
     setExercises([]);
     setSessionQueue([]);
   };
 
-  // ── Clef selection ─────────────────────────────────────────────
+  // ── Clef selection ──────────────────────────────────────────
   if (!clef) {
     return (
       <div className="practice-page">
@@ -305,7 +366,7 @@ export default function PracticePage() {
             <button className="clef-card" onClick={() => handleClefSelect('TREBLE')}>
               <span className="clef-card__symbol">𝄞</span>
               <span className="clef-card__name">Treble Clef</span>
-              <span className="clef-card__desc">E4 – F5</span>
+              <span className="clef-card__desc">E4 – E6</span>
             </button>
             <button
               className={`clef-card ${!bassUnlocked ? 'clef-card--locked' : ''}`}
@@ -315,7 +376,7 @@ export default function PracticePage() {
               <span className="clef-card__symbol">𝄢</span>
               <span className="clef-card__name">Bass Clef</span>
               <span className="clef-card__desc">
-                {bassUnlocked ? 'G2 – A3' : '🔒 Complete Learn → Treble first'}
+                {bassUnlocked ? 'A2 – A4' : '🔒 Complete Learn → Treble first'}
               </span>
             </button>
           </div>
@@ -324,7 +385,6 @@ export default function PracticePage() {
     );
   }
 
-  // ── Loading ────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="practice-page">
@@ -339,7 +399,6 @@ export default function PracticePage() {
     );
   }
 
-  // ── Error ──────────────────────────────────────────────────────
   if (error) {
     return (
       <div className="practice-page">
@@ -352,7 +411,6 @@ export default function PracticePage() {
     );
   }
 
-  // ── Results ────────────────────────────────────────────────────
   if (sessionDone) {
     return (
       <div className="practice-page">
@@ -361,11 +419,7 @@ export default function PracticePage() {
           <div className="practice__header">
             <h1 className="practice__title">Session Complete</h1>
           </div>
-          <ResultsScreen
-            results={results}
-            onRestart={handleRestart}
-            onChangeClef={handleChangeClef}
-          />
+          <ResultsScreen results={results} onRestart={handleRestart} onChangeClef={handleChangeClef} />
         </main>
       </div>
     );
@@ -373,7 +427,10 @@ export default function PracticePage() {
 
   if (!currentExercise) return null;
 
-  // ── Exercise ───────────────────────────────────────────────────
+  const noteName = currentExercise.targetNote.name;
+  const octave = getOctave(noteName);
+  const octaveHint = octave ? OCTAVE_HINT[octave] : null;
+
   return (
     <div className="practice-page">
       <NavBar />
@@ -388,14 +445,10 @@ export default function PracticePage() {
             </span>
           </div>
           <div className="practice__progress-bar">
-            <div
-              className="practice__progress-fill"
-              style={{ width: `${(currentIdx / SESSION_LENGTH) * 100}%` }}
-            />
+            <div className="practice__progress-fill"
+              style={{ width: `${(currentIdx / SESSION_LENGTH) * 100}%` }} />
           </div>
-          <p className="practice__progress-label">
-            Exercise {currentIdx + 1} of {SESSION_LENGTH}
-          </p>
+          <p className="practice__progress-label">Exercise {currentIdx + 1} of {SESSION_LENGTH}</p>
         </div>
 
         <div className="practice__card" key={currentIdx}>
@@ -403,25 +456,22 @@ export default function PracticePage() {
             <>
               <p className="practice__prompt">What note is this?</p>
               <div className="practice__staff-wrap">
-                <StaffWithNote noteName={currentExercise.targetNote.name} clef={clef} />
+                <StaffWithNote noteName={noteName} clef={clef} />
               </div>
               <div className="practice__choices">
                 {shuffledChoices.map((note) => {
                   let cls = 'choice-btn';
                   if (submitted) {
-                    if (note.name === currentExercise.targetNote.name) cls += ' choice-btn--correct';
+                    if (note.name === noteName) cls += ' choice-btn--correct';
                     else if (note.name === selectedAnswer) cls += ' choice-btn--wrong';
                     else cls += ' choice-btn--dim';
                   } else if (selectedAnswer === note.name) {
                     cls += ' choice-btn--selected';
                   }
                   return (
-                    <button
-                      key={note.name}
-                      className={cls}
+                    <button key={note.name} className={cls}
                       onClick={() => handleChoiceSelect(note.name)}
-                      disabled={submitted}
-                    >
+                      disabled={submitted}>
                       {note.name}
                     </button>
                   );
@@ -430,43 +480,48 @@ export default function PracticePage() {
             </>
           ) : (
             <>
-              <p className="practice__prompt">
-                Place <strong>{currentExercise.targetNote.name}</strong> on the staff
-              </p>
+              <div className="practice__place-header">
+                <p className="practice__prompt">
+                  Place <strong>{noteName}</strong> on the staff
+                </p>
+                {octaveHint && (
+                  <p className="practice__octave-hint">{octaveHint}</p>
+                )}
+              </div>
               <div className="practice__staff-wrap">
                 <InteractiveStaff
                   clef={clef}
                   onPlace={setPlacedNote}
                   placedNote={placedNote}
-                  correctNote={currentExercise.targetNote.name}
+                  correctNote={noteName}
                   submitted={submitted}
                 />
               </div>
               <p className="practice__place-hint">
-                {submitted
-                  ? ''
-                  : placedNote
+                {submitted ? '' : placedNote
                   ? `Selected: ${placedNote} — tap Submit to confirm`
                   : 'Tap a position on the staff to place the note'}
               </p>
             </>
           )}
 
+          {/* Octave hint for multiple choice too */}
+          {mode === 'choice' && submitted && octaveHint && (
+            <p className="practice__octave-hint practice__octave-hint--reveal">{octaveHint}</p>
+          )}
+
           {submitted && (
             <div className={`practice__feedback ${isCorrect ? 'practice__feedback--correct' : 'practice__feedback--wrong'}`}>
               {isCorrect
-                ? `✓ Correct! That's ${currentExercise.targetNote.name}.`
-                : `✗ Not quite. The correct answer was ${currentExercise.targetNote.name}.`}
+                ? `✓ Correct! That's ${noteName}.`
+                : `✗ Not quite. The correct answer was ${noteName}.`}
             </div>
           )}
 
           <div className="practice__actions">
             {!submitted ? (
-              <button
-                className="btn btn--primary"
-                onClick={handleSubmit}
-                disabled={mode === 'choice' ? !selectedAnswer : !placedNote}
-              >
+              <button className="btn btn--primary" onClick={handleSubmit}
+                disabled={mode === 'choice' ? !selectedAnswer : !placedNote}>
                 Submit
               </button>
             ) : (
