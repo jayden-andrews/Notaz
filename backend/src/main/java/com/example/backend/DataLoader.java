@@ -16,88 +16,122 @@ public class DataLoader implements CommandLineRunner {
     private final NoteRepository noteRepository;
     private final ExerciseRepository exerciseRepository;
 
-    public DataLoader(NoteRepository noteRepository, ExerciseRepository exerciseRepository) {
+    public DataLoader(
+            NoteRepository noteRepository,
+            ExerciseRepository exerciseRepository
+    ) {
         this.noteRepository = noteRepository;
         this.exerciseRepository = exerciseRepository;
     }
 
     @Override
     public void run(String... args) {
+
         if (noteRepository.count() > 0) return;
 
-        // ── Treble Clef Notes (E4 to E6) ──────────────────────────
-        Note e4  = new Note("E4",  1);
-        Note f4  = new Note("F4",  2);
-        Note g4  = new Note("G4",  3);
-        Note a4  = new Note("A4",  4);
-        Note b4  = new Note("B4",  5);
-        Note c5  = new Note("C5",  6);
-        Note d5  = new Note("D5",  7);
-        Note e5  = new Note("E5",  8);
-        Note f5  = new Note("F5",  9);
-        Note g5  = new Note("G5",  10);
-        Note a5  = new Note("A5",  11);
-        Note b5  = new Note("B5",  12);
-        Note c6  = new Note("C6",  13);
-        Note d6  = new Note("D6",  14);
-        Note e6  = new Note("E6",  15);
+        // ─────────────────────────────────────────────────────────────
+        // TREBLE CLEF NOTES (C4 → E6)
+        // ─────────────────────────────────────────────────────────────
+
+        Note c4 = new Note("C4", 1);
+        Note d4 = new Note("D4", 2);
+        Note e4 = new Note("E4", 3);
+        Note f4 = new Note("F4", 4);
+        Note g4 = new Note("G4", 5);
+        Note a4 = new Note("A4", 6);
+        Note b4 = new Note("B4", 7);
+
+        Note c5 = new Note("C5", 8);
+        Note d5 = new Note("D5", 9);
+        Note e5 = new Note("E5", 10);
+        Note f5 = new Note("F5", 11);
+        Note g5 = new Note("G5", 12);
+        Note a5 = new Note("A5", 13);
+        Note b5 = new Note("B5", 14);
+
+        Note c6 = new Note("C6", 15);
+        Note d6 = new Note("D6", 16);
+        Note e6 = new Note("E6", 17);
 
         noteRepository.saveAll(List.of(
-                e4, f4, g4, a4, b4,
+                c4, d4, e4, f4, g4, a4, b4,
                 c5, d5, e5, f5, g5, a5, b5,
                 c6, d6, e6
         ));
 
-        // ── Bass Clef Notes (A2 to A4) ─────────────────────────────
-        Note a2  = new Note("A2",  16);
-        Note b2  = new Note("B2",  17);
-        Note c3  = new Note("C3",  18);
-        Note d3  = new Note("D3",  19);
-        Note e3  = new Note("E3",  20);
-        Note f3  = new Note("F3",  21);
-        Note g3  = new Note("G3",  22);
-        Note a3  = new Note("A3",  23);
-        Note b3  = new Note("B3",  24);
-        Note c4b = new Note("C4",  25);
-        Note d4b = new Note("D4",  26);
-        Note e4b = new Note("E4b", 27);
-        Note f4b = new Note("F4b", 28);
-        Note g4b = new Note("G4b", 29);
-        Note a4b = new Note("A4b", 30);
+        // ─────────────────────────────────────────────────────────────
+        // BASS CLEF NOTES (E2 → A4)
+        // ─────────────────────────────────────────────────────────────
+
+        Note e2 = new Note("E2", 18);
+        Note f2 = new Note("F2", 19);
+        Note g2 = new Note("G2", 20);
+        Note a2 = new Note("A2", 21);
+        Note b2 = new Note("B2", 22);
+
+        Note c3 = new Note("C3", 23);
+        Note d3 = new Note("D3", 24);
+        Note e3 = new Note("E3", 25);
+        Note f3 = new Note("F3", 26);
+        Note g3 = new Note("G3", 27);
+        Note a3 = new Note("A3", 28);
+        Note b3 = new Note("B3", 29);
+
+        Note c4b = new Note("C4", 30);
+        Note d4b = new Note("D4", 31);
+        Note e4b = new Note("E4b", 32);
+        Note f4b = new Note("F4b", 33);
+        Note g4b = new Note("G4b", 34);
+        Note a4b = new Note("A4b", 35);
 
         noteRepository.saveAll(List.of(
-                a2, b2,
+                e2, f2, g2, a2, b2,
                 c3, d3, e3, f3, g3, a3, b3,
                 c4b, d4b, e4b, f4b, g4b, a4b
         ));
 
-        // ── Treble Clef Exercises ──────────────────────────────────
-        createExercise(Clef.TREBLE, e4,  List.of(e4, f4, g4, a4));
-        createExercise(Clef.TREBLE, f4,  List.of(e4, f4, g4, b4));
-        createExercise(Clef.TREBLE, g4,  List.of(f4, g4, a4, b4));
-        createExercise(Clef.TREBLE, a4,  List.of(g4, a4, b4, c5));
-        createExercise(Clef.TREBLE, b4,  List.of(a4, b4, c5, d5));
-        createExercise(Clef.TREBLE, c5,  List.of(b4, c5, d5, e5));
-        createExercise(Clef.TREBLE, d5,  List.of(c5, d5, e5, f5));
-        createExercise(Clef.TREBLE, e5,  List.of(d5, e5, f5, g5));
-        createExercise(Clef.TREBLE, f5,  List.of(e5, f5, g5, a5));
-        createExercise(Clef.TREBLE, g5,  List.of(f5, g5, a5, b5));
-        createExercise(Clef.TREBLE, a5,  List.of(g5, a5, b5, c6));
-        createExercise(Clef.TREBLE, b5,  List.of(a5, b5, c6, d6));
-        createExercise(Clef.TREBLE, c6,  List.of(b5, c6, d6, e6));
-        createExercise(Clef.TREBLE, d6,  List.of(c6, d6, e6, a5));
-        createExercise(Clef.TREBLE, e6,  List.of(d6, e6, c6, b5));
+        // ─────────────────────────────────────────────────────────────
+        // TREBLE EXERCISES
+        // ─────────────────────────────────────────────────────────────
 
-        // ── Bass Clef Exercises ────────────────────────────────────
-        createExercise(Clef.BASS, a2,  List.of(a2, b2, c3, d3));
-        createExercise(Clef.BASS, b2,  List.of(a2, b2, c3, e3));
-        createExercise(Clef.BASS, c3,  List.of(b2, c3, d3, e3));
-        createExercise(Clef.BASS, d3,  List.of(c3, d3, e3, f3));
-        createExercise(Clef.BASS, e3,  List.of(d3, e3, f3, g3));
-        createExercise(Clef.BASS, f3,  List.of(e3, f3, g3, a3));
-        createExercise(Clef.BASS, g3,  List.of(f3, g3, a3, b3));
-        createExercise(Clef.BASS, a3,  List.of(g3, a3, b3, c4b));
-        createExercise(Clef.BASS, b3,  List.of(a3, b3, c4b, d4b));
+        createExercise(Clef.TREBLE, c4, List.of(c4, d4, e4, f4));
+        createExercise(Clef.TREBLE, d4, List.of(c4, d4, e4, g4));
+        createExercise(Clef.TREBLE, e4, List.of(c4, d4, e4, f4));
+        createExercise(Clef.TREBLE, f4, List.of(e4, f4, g4, a4));
+        createExercise(Clef.TREBLE, g4, List.of(f4, g4, a4, b4));
+        createExercise(Clef.TREBLE, a4, List.of(g4, a4, b4, c5));
+        createExercise(Clef.TREBLE, b4, List.of(a4, b4, c5, d5));
+
+        createExercise(Clef.TREBLE, c5, List.of(b4, c5, d5, e5));
+        createExercise(Clef.TREBLE, d5, List.of(c5, d5, e5, f5));
+        createExercise(Clef.TREBLE, e5, List.of(d5, e5, f5, g5));
+        createExercise(Clef.TREBLE, f5, List.of(e5, f5, g5, a5));
+        createExercise(Clef.TREBLE, g5, List.of(f5, g5, a5, b5));
+        createExercise(Clef.TREBLE, a5, List.of(g5, a5, b5, c6));
+        createExercise(Clef.TREBLE, b5, List.of(a5, b5, c6, d6));
+
+        createExercise(Clef.TREBLE, c6, List.of(b5, c6, d6, e6));
+        createExercise(Clef.TREBLE, d6, List.of(c6, d6, e6, a5));
+        createExercise(Clef.TREBLE, e6, List.of(d6, e6, c6, b5));
+
+        // ─────────────────────────────────────────────────────────────
+        // BASS EXERCISES
+        // ─────────────────────────────────────────────────────────────
+
+        createExercise(Clef.BASS, e2, List.of(e2, f2, g2, a2));
+        createExercise(Clef.BASS, f2, List.of(e2, f2, g2, b2));
+        createExercise(Clef.BASS, g2, List.of(f2, g2, a2, b2));
+        createExercise(Clef.BASS, a2, List.of(a2, b2, c3, d3));
+        createExercise(Clef.BASS, b2, List.of(a2, b2, c3, e3));
+
+        createExercise(Clef.BASS, c3, List.of(b2, c3, d3, e3));
+        createExercise(Clef.BASS, d3, List.of(c3, d3, e3, f3));
+        createExercise(Clef.BASS, e3, List.of(d3, e3, f3, g3));
+        createExercise(Clef.BASS, f3, List.of(e3, f3, g3, a3));
+        createExercise(Clef.BASS, g3, List.of(f3, g3, a3, b3));
+        createExercise(Clef.BASS, a3, List.of(g3, a3, b3, c4b));
+        createExercise(Clef.BASS, b3, List.of(a3, b3, c4b, d4b));
+
         createExercise(Clef.BASS, c4b, List.of(b3, c4b, d4b, e4b));
         createExercise(Clef.BASS, d4b, List.of(c4b, d4b, e4b, f4b));
         createExercise(Clef.BASS, e4b, List.of(d4b, e4b, f4b, g4b));

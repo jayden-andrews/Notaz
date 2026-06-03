@@ -12,14 +12,16 @@ const TREBLE_Y = {
   'F5': 24,  'E5': 32,  'D5': 40,
   'C5': 48,  'B4': 56,  'A4': 64,
   'G4': 72,  'F4': 80,  'E4': 88,
+  'D4': 96,  'C4': 104,
 };
 
 const BASS_Y = {
-  'A4b': -24, 'G4b': -16, 'F4b': -8,
-  'E4b': 0,   'D4b': 8,   'C4':  16,
-  'B3':  24,  'A3':  32,  'G3':  40,
-  'F3':  48,  'E3':  56,  'D3':  64,
-  'C3':  72,  'B2':  80,  'A2':  88,
+  'A4b': -32, 'G4b': -24, 'F4b': -16,
+  'E4b': -8,   'D4b': 0,   'C4':  8,
+  'B3':  16,  'A3':  24,  'G3':  32,
+  'F3':  40,  'E3':  48,  'D3':  56,
+  'C3':  64,  'B2':  72,  'A2':  80,
+  'G2':  88,  'F2':  96, 'E2':  104,
 };
 
 // Staff lines sit at these y values
@@ -51,18 +53,35 @@ function getOctave(noteName) {
   return match ? parseInt(match[0]) : null;
 }
 
+function normalizeNoteName(noteName) {
+  return noteName.replace(/b$/, '');
+}
+
 // ── Leger line helper ───────────────────────────────────────────
 // Staff lines at 40, 56, 72, 88, 104
 // Above staff: first leger line at 24, then 8, -8, -24...
 // Below staff: first leger line at 120, then 136...
 function getLegerLines(noteY) {
   const lines = [];
-  if (noteY <= 8) {
-    for (let y = 8; y >= noteY - 4; y -= 16) lines.push(y);
+
+  const TOP_LINE = 24;
+  const BOTTOM_LINE = 88;
+  const STEP = 16;
+
+  // Above staff
+  if (noteY < TOP_LINE) {
+    for (let y = TOP_LINE - STEP; y >= noteY; y -= STEP) {
+      lines.push(y);
+    }
   }
-  if (noteY >= 104) {
-    for (let y = 104; y <= noteY + 4; y += 16) lines.push(y);
+
+  // Below staff
+  if (noteY > BOTTOM_LINE) {
+    for (let y = BOTTOM_LINE + STEP; y <= noteY; y += STEP) {
+      lines.push(y);
+    }
   }
+
   return lines;
 }
 
@@ -319,7 +338,7 @@ export default function PracticePage() {
     const answer = mode === 'choice' ? selectedAnswer : placedNote;
     if (!answer) return;
 
-    const correct = answer === currentExercise.targetNote.name;
+    const correct = normalizeNoteName(answer) === normalizeNoteName(currentExercise.targetNote.name);
     setIsCorrect(correct);
     setSubmitted(true);
     setResults(prev => [...prev, { noteName: currentExercise.targetNote.name, mode, correct }]);
@@ -366,7 +385,7 @@ export default function PracticePage() {
             <button className="clef-card" onClick={() => handleClefSelect('TREBLE')}>
               <span className="clef-card__symbol">𝄞</span>
               <span className="clef-card__name">Treble Clef</span>
-              <span className="clef-card__desc">E4 – E6</span>
+              <span className="clef-card__desc">C4 – E6</span>
             </button>
             <button
               className={`clef-card ${!bassUnlocked ? 'clef-card--locked' : ''}`}
@@ -376,7 +395,7 @@ export default function PracticePage() {
               <span className="clef-card__symbol">𝄢</span>
               <span className="clef-card__name">Bass Clef</span>
               <span className="clef-card__desc">
-                {bassUnlocked ? 'A2 – A4' : '🔒 Complete Learn → Treble first'}
+                {bassUnlocked ? 'E2 – A4' : '🔒 Complete Learn → Treble first'}
               </span>
             </button>
           </div>
@@ -472,7 +491,7 @@ export default function PracticePage() {
                     <button key={note.name} className={cls}
                       onClick={() => handleChoiceSelect(note.name)}
                       disabled={submitted}>
-                      {note.name}
+                      {normalizeNoteName(note.name)}
                     </button>
                   );
                 })}
@@ -482,7 +501,7 @@ export default function PracticePage() {
             <>
               <div className="practice__place-header">
                 <p className="practice__prompt">
-                  Place <strong>{noteName}</strong> on the staff
+                  Place <strong>{normalizeNoteName(noteName)}</strong> on the staff
                 </p>
                 {octaveHint && (
                   <p className="practice__octave-hint">{octaveHint}</p>
@@ -499,7 +518,7 @@ export default function PracticePage() {
               </div>
               <p className="practice__place-hint">
                 {submitted ? '' : placedNote
-                  ? `Selected: ${placedNote} — tap Submit to confirm`
+                  ? `Position selected — tap Submit to confirm`
                   : 'Tap a position on the staff to place the note'}
               </p>
             </>
@@ -513,8 +532,8 @@ export default function PracticePage() {
           {submitted && (
             <div className={`practice__feedback ${isCorrect ? 'practice__feedback--correct' : 'practice__feedback--wrong'}`}>
               {isCorrect
-                ? `✓ Correct! That's ${noteName}.`
-                : `✗ Not quite. The correct answer was ${noteName}.`}
+                ? `✓ Correct! That's ${normalizeNoteName(noteName)}.`
+                : `✗ Not quite. The correct answer was ${normalizeNoteName(noteName)}.`}
             </div>
           )}
 
