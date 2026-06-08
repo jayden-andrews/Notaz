@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
 import LearnPage from './pages/LearnPage';
 import PracticePage from './pages/PracticePage';
+import ProgressPage from './pages/ProgressPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/learn" element={<LearnPage />} />
         <Route path="/practice" element={<PracticePage />} />
+        <Route path="/progress" element={<ProgressPage />} />
       </Routes>
     </BrowserRouter>
   );

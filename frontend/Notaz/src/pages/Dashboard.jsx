@@ -4,16 +4,7 @@ import './Dashboard.css';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-
-  // Pull user from localStorage — replace with auth context later
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-  // Placeholder stats — wire to /api/progress once backend is ready
-  const stats = [
-    { label: 'Lessons Completed', value: '0' },
-    { label: 'Avg. Accuracy',     value: '—' },
-    { label: 'Clefs Practiced',   value: '0' },
-  ];
 
   const cards = [
     {
@@ -50,16 +41,6 @@ export default function Dashboard() {
             <p className="dashboard__greeting-sub">Welcome back</p>
             <h1 className="dashboard__greeting-name">{user.email || 'Musician'}</h1>
           </div>
-        </section>
-
-        {/* ── Stats row ── */}
-        <section className="dashboard__stats" aria-label="Progress summary">
-          {stats.map((s) => (
-            <div key={s.label} className="stat-card">
-              <span className="stat-card__value">{s.value}</span>
-              <span className="stat-card__label">{s.label}</span>
-            </div>
-          ))}
         </section>
 
         {/* ── Learn + Practice cards ── */}

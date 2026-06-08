@@ -8,20 +8,20 @@ const SESSION_LENGTH = 10;
 // ── Staff Y positions (top of SVG = lowest y value) ────────────
 const TREBLE_Y = {
   'E6': -24, 'D6': -16, 'C6': -8,
-  'B5': 0,   'A5': 8,   'G5': 16,
-  'F5': 24,  'E5': 32,  'D5': 40,
-  'C5': 48,  'B4': 56,  'A4': 64,
-  'G4': 72,  'F4': 80,  'E4': 88,
-  'D4': 96,  'C4': 104,
+  'B5': 0, 'A5': 8, 'G5': 16,
+  'F5': 24, 'E5': 32, 'D5': 40,
+  'C5': 48, 'B4': 56, 'A4': 64,
+  'G4': 72, 'F4': 80, 'E4': 88,
+  'D4': 96, 'C4': 104,
 };
 
 const BASS_Y = {
   'A4b': -32, 'G4b': -24, 'F4b': -16,
-  'E4b': -8,   'D4b': 0,   'C4':  8,
-  'B3':  16,  'A3':  24,  'G3':  32,
-  'F3':  40,  'E3':  48,  'D3':  56,
-  'C3':  64,  'B2':  72,  'A2':  80,
-  'G2':  88,  'F2':  96, 'E2':  104,
+  'E4b': -8, 'D4b': 0, 'C4': 8,
+  'B3': 16, 'A3': 24, 'G3': 32,
+  'F3': 40, 'E3': 48, 'D3': 56,
+  'C3': 64, 'B2': 72, 'A2': 80,
+  'G2': 88, 'F2': 96, 'E2': 104,
 };
 
 // Staff lines sit at these y values
@@ -349,11 +349,19 @@ export default function PracticePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ exerciseId: currentExercise.id, userAnswer: answer }),
       });
-    } catch (_) {}
+    } catch (_) { }
   };
 
   const handleNext = () => {
     if (currentIdx + 1 >= SESSION_LENGTH) {
+      const finalResults = [...results, { noteName: currentExercise.targetNote.name, mode, correct: isCorrect }];
+      const sessionData = {
+        clef,
+        date: new Date().toISOString(),
+        results: finalResults,
+      };
+      const existing = JSON.parse(localStorage.getItem('notaz_sessions') || '[]');
+      localStorage.setItem('notaz_sessions', JSON.stringify([...existing, sessionData]));
       setSessionDone(true);
       return;
     }
